@@ -2,6 +2,7 @@
   "name": "Prompt & Circumstance",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "postCreateCommand": "npm run install:all",
+  "postStartCommand": "nohup npm run serve > /tmp/pc-serve.log 2>&1 &",
   "forwardPorts": [8787],
   "portsAttributes": {
     "8787": {
