@@ -2,6 +2,9 @@
 // call → broadcast verdict (spec §9). Authoritative state lives in GameSession.
 
 import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
 import express from "express";
 import { WebSocketServer } from "ws";
@@ -11,6 +14,17 @@ import { judgeMode } from "./judge.js";
 const PORT = process.env.PORT || 8787;
 const app = express();
 app.get("/health", (_req, res) => res.json({ ok: true, judge: judgeMode() }));
+
+// Single-process serve: if the client has been built, serve it from this same
+// origin so everything (HTTP + WebSocket) lives on one port — required by hosts
+// like Codespaces/Render. In dev the client runs separately on Vite (:5173).
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.resolve(__dirname, "../../client/dist");
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get("*", (_req, res) => res.sendFile(path.join(clientDist, "index.html")));
+  console.log("[server] serving built client from", clientDist);
+}
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });

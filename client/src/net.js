@@ -1,6 +1,14 @@
 import { useSyncExternalStore, useCallback } from "react";
 
-const WS_URL = import.meta.env.VITE_WS_URL || `ws://${location.hostname}:8787`;
+// In dev, Vite serves the client on :5173 while the server is on :8787, so we
+// target that port explicitly. In single-process/deployed mode the client is
+// served by the game server itself, so we use the same origin (and wss on https).
+function defaultWsUrl() {
+  if (location.port === "5173") return `ws://${location.hostname}:8787`;
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${location.host}`;
+}
+const WS_URL = import.meta.env.VITE_WS_URL || defaultWsUrl();
 
 // Singleton connection manager so a single socket survives React StrictMode
 // double-mounts and component re-renders.

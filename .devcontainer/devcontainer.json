@@ -1,0 +1,12 @@
+{
+  "name": "Prompt & Circumstance",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm run install:all",
+  "forwardPorts": [8787],
+  "portsAttributes": {
+    "8787": {
+      "label": "Prompt & Circumstance",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}

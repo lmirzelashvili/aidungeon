@@ -41,6 +41,27 @@ Open http://localhost:5173.
   (For co-op the players need to reach the server — same machine/LAN, or expose :5173 and
   :8787. Override the socket URL with `VITE_WS_URL` if needed.)
 
+## Play it from your phone (GitHub Codespaces)
+
+GitHub Pages can't host this (it only serves static files; this app needs the
+Node WebSocket server). **Codespaces** can, and works from the GitHub mobile site:
+
+1. On github.com, open this repo → **Code** → **Codespaces** → create one on this branch.
+   (`.devcontainer/` auto-installs deps.)
+2. In the Codespaces terminal, run `npm run serve`.
+3. Open the **Ports** tab, find port **8787**, set its visibility to **Public**,
+   and open the forwarded URL — that link works in your phone browser, and you can
+   share it with friends for co-op.
+
+## Single-process serve (one port, for any host)
+
+```bash
+npm run serve   # builds the client, then the server serves it + the WebSocket on PORT (default 8787)
+```
+
+The server serves the built client from the same origin, so HTTP and the WebSocket
+share one port — deployable to Render/Railway/Fly/Codespaces with no extra config.
+
 ### Enable the live AI judge
 
 By default it runs the offline mock judge. To use Claude:
