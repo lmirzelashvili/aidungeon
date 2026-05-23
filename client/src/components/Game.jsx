@@ -16,6 +16,13 @@ export default function Game({ game, playerId, submit, cont, newRun }) {
     <div className="min-h-full max-w-5xl mx-auto p-4 sm:p-6">
       <Header game={game} />
 
+      {game.roomIndex === 0 && game.round === 1 && game.phase === "planning" && game.level?.intro && (
+        <Card className="p-4 mt-4 border-violet-500/20 bg-violet-500/5">
+          <p className="text-xs uppercase tracking-wide text-violet-300/80 font-bold">{game.level.subtitle}</p>
+          <p className="text-sm text-white/60 mt-1 leading-relaxed">{game.level.intro}</p>
+        </Card>
+      )}
+
       <div className="grid lg:grid-cols-[1fr_1.1fr] gap-4 mt-4">
         {/* Left column: world + party */}
         <div className="space-y-4">
@@ -49,9 +56,12 @@ function Header({ game }) {
   return (
     <div className="flex items-center justify-between flex-wrap gap-2">
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-black bg-gradient-to-r from-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-          Prompt &amp; Circumstance
-        </h1>
+        <div>
+          <h1 className="text-lg font-black bg-gradient-to-r from-violet-300 to-fuchsia-300 bg-clip-text text-transparent leading-none">
+            Prompt &amp; Circumstance
+          </h1>
+          {game.level?.name && <p className="text-xs text-white/40 mt-0.5">{game.level.name}</p>}
+        </div>
         {game.mode === "coop" && <Pill className="bg-white/10 text-white/60 font-mono">{game.code}</Pill>}
       </div>
       <div className="flex items-center gap-2 text-sm text-white/60">

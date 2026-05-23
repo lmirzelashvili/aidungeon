@@ -2,7 +2,7 @@
 // (spec §9). The judge only scores a rubric; ALL outcome math (damage, backfire,
 // integrity, win/lose) is deterministic and lives here (spec §5.3).
 
-import { STARTER_TOOLS, ROOMS, ROOM_COUNT } from "./content.js";
+import { STARTER_TOOLS, ROOMS, ROOM_COUNT, LEVEL } from "./content.js";
 import { adjudicate, judgeMode } from "./judge.js";
 
 const BASE_DAMAGE = 40;
@@ -244,6 +244,7 @@ export class GameSession {
       phase: this.phase,
       hostId: this.hostId,
       judgeMode: judgeMode(),
+      level: { name: LEVEL.name, subtitle: LEVEL.subtitle, intro: LEVEL.intro },
       roomIndex: this.roomIndex,
       roomCount: ROOM_COUNT,
       round: this.round,

@@ -184,17 +184,23 @@ function mockJudge({ obstacle, inventory, players }) {
   const propKeywords = {
     brittle_base: ["base", "crack", "bottom", "foundation"],
     load_bearing: ["base", "support", "topple", "collapse"],
-    rusted_joints: ["rust", "joint", "oil", "lubricat", "hinge"],
+    rusted_joints: ["rust", "joint", "oil", "lubricat", "hinge", "heat", "warm", "expand"],
     spring_loaded: ["winch", "release", "spring", "cut the", "trigger"],
     "weak_point: winch": ["winch", "gear", "mechanism"],
     flammable: ["fire", "burn", "ignite", "light", "spark", "flame", "heat"],
     acidic: ["neutralize", "scoop", "avoid the", "from above"],
     slow: ["quick", "fast", "before it", "while it sleeps"],
     "weak_point: nucleus": ["nucleus", "core", "center", "centre", "heart"],
+    deep_water: ["water", "flood", "swim", "wade", "drain", "submerg", "float"],
+    strong_current: ["current", "anchor", "secure", "tie", "rope", "brace", "hold on"],
+    slippery: ["slip", "grip", "traction", "anchor", "footing"],
+    "weak_point: sluice_valve": ["valve", "sluice", "wheel", "drain", "turn the", "crank the"],
+    low_visibility: ["lantern", "feel your way", "feel along", "by touch", "helmet", "visor", "guide"],
+    "weak_point: vent": ["vent", "ventilate", "crank", "clear the air", "air out", "fan", "draft", "fresh air"],
     ward_locked: ["ward", "rune", "magic", "dispel"],
-    vain: ["flatter", "compliment", "praise", "beautiful", "handsome", "smart", "wonderful", "best"],
+    vain: ["flatter", "compliment", "praise", "beautiful", "handsome", "smart", "wonderful", "best", "reflect", "platter", "mirror"],
     heavy: ["leverage", "lever", "pry", "winch"],
-    "weak_point: flattery": ["flatter", "compliment", "praise", "tell it", "say it"],
+    "weak_point: flattery": ["flatter", "compliment", "praise", "tell it", "say it", "reflect", "platter", "mirror", "show it"],
   };
   let exploited = null;
   for (const prop of obstacle.hidden_properties) {
@@ -225,6 +231,26 @@ function mockJudge({ obstacle, inventory, players }) {
     };
   }
 
+  // Trap rooms: an action that triggers the obstacle's hazard (e.g. open flame in
+  // marsh-gas) backfires regardless of how clever it was. The live judge handles
+  // this via hidden_properties; the mock judge enforces it here.
+  if (obstacle.hazard && mentions(lc, obstacle.hazard.trigger_keywords)) {
+    const victim = players[Math.floor(Math.random() * players.length)];
+    return {
+      scores: { plausibility: 2, synergy, effectiveness: 1, creativity },
+      exploited_property: null,
+      backfire: {
+        triggered: true,
+        severity: obstacle.hazard.severity ?? 6,
+        effect: obstacle.hazard.effect || `${victim.id}_hurt`,
+        target: victim.id,
+      },
+      outcome: "fail",
+      narration: obstacle.hazard.narration,
+      source: "mock",
+    };
+  }
+
   const outcome = effectiveness >= 7 && plausibility >= 4 ? "success" : plausibility < 3 ? "fail" : "partial";
 
   return {
@@ -237,20 +263,25 @@ function mockJudge({ obstacle, inventory, players }) {
   };
 }
 
+// Prefix an article without doubling it for names that already start with "The".
+const artLower = (n) => (/^the\s/i.test(n) ? n.replace(/^the\s/i, "the ") : `the ${n}`);
+const artUpper = (n) => (/^the\s/i.test(n) ? n.replace(/^the\s/i, "The ") : `The ${n}`);
+
 function mockNarration({ obstacle, exploited, overreach, backfire, outcome, players }) {
+  const name = obstacle.name;
   if (backfire.triggered) {
     const who = players.find((p) => p.id === backfire.target)?.name || "someone";
-    return `Physics, ever the killjoy, declines the request — ${who} ends up sprawled and exposed while the ${obstacle.name} doesn't so much as flinch.`;
+    return `Physics, ever the killjoy, declines the request — ${who} ends up sprawled and exposed while ${artLower(name)} doesn't so much as flinch.`;
   }
   if (outcome === "success") {
     return exploited
-      ? `A clean hit on its weak point — the ${obstacle.name} buckles with a deeply satisfying crunch.`
-      : `Not elegant, but it works: the ${obstacle.name} gives ground under the assault.`;
+      ? `A clean hit on its weak point — ${artLower(name)} buckles with a deeply satisfying crunch.`
+      : `Not elegant, but it works: ${artLower(name)} gives ground under the assault.`;
   }
   if (outcome === "fail") {
-    return `The plan fizzles. The ${obstacle.name} seems almost insulted on your behalf.`;
+    return `The plan fizzles. ${artUpper(name)} seems almost insulted on your behalf.`;
   }
   return overreach
-    ? `It half-works through sheer audacity — the ${obstacle.name} is rattled but still standing.`
-    : `A solid effort chips away at the ${obstacle.name}; it's hurting, but not done.`;
+    ? `It half-works through sheer audacity — ${artLower(name)} is rattled but still standing.`
+    : `A solid effort chips away at ${artLower(name)}; it's hurting, but not done.`;
 }

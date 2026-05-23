@@ -9,7 +9,7 @@ acts as the world *and* the judge — it decides whether your plan works, how mu
 helps, and punishes overreach with consequences.
 
 This repo is the **MVP prototype** (spec §10): prompt-primary, light/stubbed execution,
-co-op + solo, a single hardcoded run of 4 rooms.
+co-op + solo, and a designed 6-room first level ("The Drowned Keep").
 
 ## What's built
 
